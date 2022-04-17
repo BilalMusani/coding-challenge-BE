@@ -2,45 +2,65 @@
     schema: public
     name: companies
   array_relationships:
-  - name: company_investors
-    using:
-      foreign_key_constraint_on:
-        column: company_id
-        table:
-          schema: public
-          name: company_investors
-  - name: jobs
-    using:
-      foreign_key_constraint_on:
-        column: company_id
-        table:
-          schema: public
-          name: jobs
+    - name: company_investors
+      using:
+        foreign_key_constraint_on:
+          column: company_id
+          table:
+            schema: public
+            name: company_investors
+    - name: jobs
+      using:
+        foreign_key_constraint_on:
+          column: company_id
+          table:
+            schema: public
+            name: jobs
 - table:
     schema: public
     name: company_investors
   object_relationships:
-  - name: company
-    using:
-      foreign_key_constraint_on: company_id
-  - name: investor
-    using:
-      foreign_key_constraint_on: investor_id
+    - name: company
+      using:
+        foreign_key_constraint_on: company_id
+    - name: investor
+      using:
+        foreign_key_constraint_on: investor_id
 - table:
     schema: public
     name: investors
   array_relationships:
-  - name: company_investors
-    using:
-      foreign_key_constraint_on:
-        column: investor_id
-        table:
-          schema: public
-          name: company_investors
+    - name: company_investors
+      using:
+        foreign_key_constraint_on:
+          column: investor_id
+          table:
+            schema: public
+            name: company_investors
 - table:
     schema: public
     name: jobs
   object_relationships:
-  - name: company
-    using:
-      foreign_key_constraint_on: company_id
+    - name: company
+      using:
+        foreign_key_constraint_on: company_id
+  event_triggers:
+    - name: add_edit_job
+      definition:
+        enable_manual: false
+        insert:
+          columns: '*'
+        update:
+          columns:
+            - company_id
+            - id
+            - city
+            - title
+      retry_conf:
+        num_retries: 0
+        interval_sec: 10
+        timeout_sec: 60
+      webhook: http://localhost:5000/jobs/addEditJob
+- table:
+    schema: public
+    name: user
