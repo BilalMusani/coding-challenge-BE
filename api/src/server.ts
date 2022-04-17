@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import jobsRouter from './routes/job.routes'
+import jobsRouter from "./routes/job.routes";
 
 const app = express();
 
