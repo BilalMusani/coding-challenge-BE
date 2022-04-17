@@ -1,11 +1,30 @@
 version: "3.7"
 
 services:
+  api:
+      container_name: express-api
+      <<: &default
+          image: the-shortest-url-dev:1.0.0
+          build:
+              context: ./api
+              dockerfile: ./Dockerfile
+          networks:
+              - talentspace-network
+          volumes:
+              - .:/usr/src/app
+              - /usr/src/app/node_modules
+          restart: unless-stopped
+      ports:
+          - 5000:5000
+          - 9229:9229
+      command: npm run start
   react-app:
     container_name: coding-challenge
     build:
       context: .
       dockerfile: Dockerfile
+    networks:
+      - talentspace-network
     volumes:
       - "./:/usr/src/app"
       - "/usr/src/app/node_modules"
@@ -22,6 +41,8 @@ services:
     restart: always
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - talentspace-network
     environment:
       POSTGRES_PASSWORD: postgrespassword
   graphql-engine:
@@ -31,10 +52,13 @@ services:
     depends_on:
       - "postgres"
     restart: always
+    networks:
+      - talentspace-network
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      api: 5000
       ## uncomment next line to set an admin secret
       # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
     volumes:
@@ -42,3 +66,5 @@ services:
       - ./hasura/metadata:/hasura-metadata
 volumes:
   db_data:
+networks:
+    talentspace-network:
