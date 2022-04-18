@@ -1,0 +1,1 @@
+CREATE TABLE "public"."user_to_keywords"("user_id" integer NOT NULL, "keyword_id" integer NOT NULL, "id" serial NOT NULL, PRIMARY KEY ("id") , FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON UPDATE restrict ON DELETE restrict, FOREIGN KEY ("keyword_id") REFERENCES "public"."keywords"("id") ON UPDATE restrict ON DELETE restrict);

@@ -63,4 +63,34 @@
       webhook: http://api:5000/jobs/addEditJob
 - table:
     schema: public
+    name: keywords
+  array_relationships:
+    - name: user_to_keywords
+      using:
+        foreign_key_constraint_on:
+          column: keyword_id
+          table:
+            schema: public
+            name: user_to_keywords
+- table:
+    schema: public
     name: user
+  array_relationships:
+    - name: user_to_keywords
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: user_to_keywords
+          column_mapping:
+            id: user_id
+- table:
+    schema: public
+    name: user_to_keywords
+  object_relationships:
+    - name: keyword
+      using:
+        foreign_key_constraint_on: keyword_id
+    - name: user
+      using:
+        foreign_key_constraint_on: user_id
