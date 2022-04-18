@@ -60,7 +60,7 @@
         num_retries: 0
         interval_sec: 10
         timeout_sec: 60
-      webhook: http://localhost:5000/jobs/addEditJob
+      webhook: http://api:5000/jobs/addEditJob
 - table:
     schema: public
     name: user
