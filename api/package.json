@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
+    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix && yarn generate",
     "build": "tsc",
     "prestart": "npm run build",
     "start": "nodemon -r esm dist/server.js",
