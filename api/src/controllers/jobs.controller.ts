@@ -1,11 +1,8 @@
 // import JobModel from '../models/job.model';
 
-import { GET_USERS_ADVANCED } from "../queries/users";
 import {
-  GetUsersAdvancedQuery,
   GetUsersMatchingJobQueryVariables,
   GetUsersMatchingJobQuery,
-  GetUsersAdvancedQueryVariables,
   Jobs,
   GetJobCompanyAndInvestorQuery,
   GetJobCompanyAndInvestorQueryVariables
@@ -14,10 +11,9 @@ import { apolloClient } from "../apollo";
 import { GET_JOBS_COMPANY_INVESTORS, GET_USERS_MATCHING_JOB } from "../queries/jobs";
 import { JobsService } from "../services/jobs.service";
 import { SuccessMessageConstants } from "../utils/success.messages";
-import { ErrorMessages } from "../utils/errors/error.messages";
 import express from 'express';
 import { ApolloQueryResult } from "@apollo/client/core";
-import { InternalServerError } from "../utils/errors/internal-server.error";
+import { getMessageFromApolloResult } from "../utils/errors/error.utils";
 export class JobsController {
   // tslint:disable-next-line: no-empty
   constructor() { }
@@ -28,18 +24,18 @@ export class JobsController {
    * @param next: Middleware for handling error
    */
   private handleError(data: ApolloQueryResult<any>, next: (arg0: any) => void) {
-    const message: string = data.error ? data.error.message : data.errors ? data.errors.map(x => x.message).reduce((prev, curr) => `${prev},${curr}`, '') : ErrorMessages.NETWORK_ERROR;
+    const message: string = getMessageFromApolloResult(data);
     return next(new Error(message));
   }
 
-// Triggered when a job is added in Hasura
-/**
- *
+  // Triggered when a job is added in Hasura
+  /**
+   *
    * @param req: Event from Hasura with the Job params
    * @param res: Response object
    * @param next: Middleware for intermediate handling
    * @returns Reponse object indicating success in notifying users or failure if application encountered an error
- */
+   */
 
   async addEditJob(req: any, res: express.Response, next: (arg0: any) => void) {
 
@@ -66,7 +62,7 @@ export class JobsController {
         {
           query: GET_JOBS_COMPANY_INVESTORS,
           variables: { id: job.id }
-    });
+        });
 
       if (jobCompanyInvestorResponse.networkStatus === 8 || !jobCompanyInvestorResponse.data || jobCompanyInvestorResponse.error) {
         return this.handleError(data, next);
@@ -76,24 +72,14 @@ export class JobsController {
       if (jobCompanyInvestorResponse.data && jobCompanyInvestorResponse.data.jobs) {
         jobsService.singleJobPosting(matchedUsers, jobCompanyInvestorResponse.data.jobs)
           .then(_success => {
-    return res.json({
+            return res.json({
               "response": SuccessMessageConstants.NEW_JOB_NOTIFICATION_SUCCESS,
             });
-    })
+          })
           .catch(error => {
             next(error);
           });
       }
     }
   }
-
-
-}
-
-// TODO: Remove
-export async function show_job(req: any, res: any) {
-    // success
-    return res.json({
-        hello: "world"
-    });
 }
