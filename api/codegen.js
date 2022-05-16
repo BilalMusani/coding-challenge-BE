@@ -1,5 +1,4 @@
-const SCHEMA_URL = process.env.SCEHMA || process.env.NODE_APP_GRAPHQL_URL;
-
+const SCHEMA_URL = process.env.SCHEMA || process.env.NODE_APP_GRAPHQL_URL;
 module.exports = {
     schema: [
       {
