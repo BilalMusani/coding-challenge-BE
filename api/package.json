@@ -33,6 +33,7 @@
     "@graphql-codegen/typescript-operations": "^2.3.5",
     "@types/express": "^4.17.13",
     "@types/node": "^17.0.24",
+    "@types/nodemailer": "^6.4.4",
     "esm": "^3.2.25",
     "graphql-tag": "^2.12.6",
     "nodemon": "1.18.4",
