@@ -31,9 +31,6 @@
     name: get_users_advanced
 - table:
     schema: public
-    name: get_users_basic
-- table:
-    schema: public
     name: investors
   array_relationships:
     - name: company_investors
