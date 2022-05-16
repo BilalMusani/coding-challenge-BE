@@ -1,4 +1,4 @@
-class BaseError extends Error {
+export class BaseError extends Error {
     constructor(
         public name: string,
         public statusCode: any,
@@ -6,9 +6,7 @@ class BaseError extends Error {
         public description: string)
     {
         super(description)
-        Object.setPrototypeOf(this, new.target.prototype)
-        Error.captureStackTrace(this)
+        // Object.setPrototypeOf(this, new.target.prototype)
+        // Error.captureStackTrace(this)
     }
 }
-
-module.exports = BaseError

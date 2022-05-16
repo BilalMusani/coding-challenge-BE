@@ -3,6 +3,8 @@ import {
 	StatusCodes,
 } from 'http-status-codes';
 
+import { BaseError } from './base.error';
+
 export class InternalServerError extends BaseError {
     constructor(
         name: string,
@@ -13,5 +15,3 @@ export class InternalServerError extends BaseError {
         super(name, statusCode, isOperational, description)
     }
 }
-
-module.exports = InternalServerError;
