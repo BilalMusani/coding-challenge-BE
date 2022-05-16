@@ -1,13 +1,15 @@
+const SCHEMA_URL = process.env.SCEHMA || process.env.NODE_APP_GRAPHQL_URL;
+
 module.exports = {
     schema: [
       {
-        "http://localhost:8080/v1/graphql": {},
+        [SCHEMA_URL]: {},
       },
     ],
     documents: ['./src/**/*.tsx', './src/**/*.ts'],
     overwrite: true,
     generates: {
-      "./src/generated/graphql.tsx": {
+      "./src/generated/graphql.ts": {
         plugins: [
           "typescript",
           "typescript-operations",

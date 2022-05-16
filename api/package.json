@@ -5,14 +5,17 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix && yarn generate",
+    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "build": "tsc",
     "prestart": "npm run build",
-    "start": "nodemon -r esm dist/server.js",
-    "generate": "graphql-codegen --config codegen.js"
+    "start:dev": "npm run generate:dev && nodemon -r esm dist/server.js",
+    "start:prod": "npm run generate:prod && nodemon -r esm dist/server.js",
+    "generate:dev": "DOTENV_CONFIG_PATH=.env graphql-codegen -r dotenv/config --config codegen.js",
+    "generate:prod": "DOTENV_CONFIG_PATH=.env.prod graphql-codegen -r dotenv/config --config codegen.js"
   },
   "dependencies": {
     "body-parser": "1.19.0",
+    "dotenv": "^16.0.1",
     "express": "4.16.4",
     "graphql": "^16.5.0",
     "node-fetch": "2.6.0",
