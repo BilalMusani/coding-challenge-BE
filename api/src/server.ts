@@ -1,6 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
 import jobsRouter from "./routes/job.routes";
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 
