@@ -6,9 +6,7 @@ query getUsersMatchingJob($title: String!, $city: String!) {
     get_users_matching_job(args: {title: $title, city: $city}) {
       cities
       email
-      email_sent_date
       id
-      keyword_id
       send_digest
     }
 }`;
