@@ -1,13 +1,12 @@
 import { Router } from "express";
-// Require controller modules.
-import * as jobs_controller from '../controllers/jobs.controller';
+import { JobsController } from "../controllers/jobs.controller";
+
 
 const jobsRouter = Router();
 
-/// JOB ROUTES ///
+const jobsController = new JobsController();
 
-// GET catalog home page.
-jobsRouter.post('/addEditJob', jobs_controller.add_edit_job);
-jobsRouter.get('/test', jobs_controller.show_job);
+
+jobsRouter.post('/addEditJob', jobsController.addEditJob);
 
 export default jobsRouter;
