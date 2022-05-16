@@ -1,27 +1,6 @@
 version: "3.7"
 
 services:
-  api:
-      container_name: express-api
-      <<: &default
-          image: the-shortest-url-dev:1.0.0
-          build:
-              context: ./api
-              dockerfile: ./Dockerfile
-          networks:
-              - talentspace-network
-          volumes:
-              - .:/usr/src/app
-              - /usr/src/app/node_modules
-          restart: unless-stopped
-      ports:
-          - 5000:5000
-          - 9229:9229
-      command: npm run start
-      environment:
-      - PORT=5000
-      - NODE_ENV=development
-      - NODE_APP_GRAPHQL_URL=http://graphql-engine:8080/v1/graphql
   react-app:
     container_name: coding-challenge
     build:
@@ -47,6 +26,8 @@ services:
       - db_data:/var/lib/postgresql/data
     networks:
       - talentspace-network
+    ports:
+      - 5432:5432
     environment:
       POSTGRES_PASSWORD: postgrespassword
   graphql-engine:
@@ -54,7 +35,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - "postgres"
+      - postgres
     restart: always
     networks:
       - talentspace-network
@@ -68,6 +49,28 @@ services:
     volumes:
       - ./hasura/migrations:/hasura-migrations
       - ./hasura/metadata:/hasura-metadata
+  api:
+    depends_on:
+    - graphql-engine
+    container_name: express-api
+    <<: &default
+        build:
+            context: ./api
+            target: production
+            dockerfile: ./Dockerfile
+        networks:
+            - talentspace-network
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        restart: unless-stopped
+    ports:
+        - 5000:5000
+        - 9229:9229
+    environment:
+    - PORT=5000
+    - NODE_ENV=prod
+    - NODE_APP_GRAPHQL_URL=http://graphql-engine:8080/v1/graphql
 volumes:
   db_data:
 networks:

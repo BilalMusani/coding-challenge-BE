@@ -1,33 +1,20 @@
 
-FROM node:17-alpine3.12 AS development
+FROM node:17-alpine3.12 AS production
 
-WORKDIR /usr/src/app/api
+# setup working directory
+WORKDIR '/usr/src/app/api'
 
-COPY package*.json ./
+# add `/usr/src/app/node_modules/.bin` to $PATH
+ENV PATH /usr/src/app/api/node_modules/.bin:$PATH
 
-RUN npm install glob rimraf
+# install and cache app dependencies
+ADD package.json /usr/src/app/api/package.json
+COPY yarn.lock /usr/src/app/api/
 
-RUN npm install --development
+RUN yarn install --silent
 
-COPY . .
+# add app
+ADD . /usr/src/app/api
 
-CMD ["npm", "start"]
-
-# RUN npm run test && npm run test:e2e
-
-FROM node:17-alpine3.12 as production
-
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
-WORKDIR /usr/src/app/api
-
-COPY package*.json ./
-
-RUN npm ci --production
-
-COPY . .
-
-# COPY --from=development /usr/src/app/dist ./dist
-
-CMD ["npm", "start"]
+# start app
+CMD ["yarn", "start:prod"]
