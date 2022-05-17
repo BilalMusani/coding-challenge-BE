@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { isOperationalError, logError, logErrorMiddleware, returnError } from './utils/handlers/error.handler';
 import cron from 'node-cron';
 import { JobsService } from "./services/jobs.service";
+import { JobUrls } from "./routes/job.urls";
 
 dotenv.config();
 
@@ -17,8 +18,7 @@ const jobService = new JobsService();
 app.use(bodyParser.json());
 
 
-// TODO: Move all routes here to constants
-app.use('/jobs', jobsRouter);
+app.use(JobUrls.DEFAULT_JOB_ROUTE, jobsRouter);
 
 // schedule cron job to send digest
 
