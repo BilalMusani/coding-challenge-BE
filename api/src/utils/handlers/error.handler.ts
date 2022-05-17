@@ -1,10 +1,10 @@
 import { ErrorMessages } from "../errors/error.messages";
 import express from 'express';
 import { BaseError } from "../errors/base.error";
+import { logger } from "../loggers/default.logger";
 
 export function logError(err: any) {
-    // TODO: Add logger here
-    console.error("LOGGER", err)
+    logger.error(err)
 }
 
 export function logErrorMiddleware(err: any, _req: any, _res: any, next: (arg0: any) => void) {
