@@ -1,56 +1,111 @@
+## Folder Structure
+
+```
+| api
+│ ├─ src
+|    ├─ controllers                  
+|      jobs.controller.ts		# Controller for event handling when job is updated (i.e. Basic Task)
+|    ├─ generated # Automatically generated typings
+|    ├─ queries # Contains GraphQl queries used in the app
+|       └─ users.queries.ts
+|       └─ jobs.queries.ts
+|    ├─ routes # Contains routes to controllers and the relevant routers
+|       └─ job.routes.ts
+|       └─ jobs.urls.ts
+|       └─ user.routes.ts      
+|    ├─ services # Contains services for mailing and managing business logic for the job controller
+|       └─ jobs.service.ts
+|       └─ jobs.urls.ts
+|    ├─ utils # Contains utilities for the app
+|       ├─ errors # Contains classes for encapsulating error logic
+|       ├─ handlers
+|           └─ error.handler.ts # Handler for delegating of errors
+```
+
+* * *
 ## Task
-Your task is to implement a **Personal Job Alert service** which will send an email for newly added jobs, which match the criteria defined by the user.
+The **Personal Job Alert service** provider by this app has two modes of operation:
 
-1. **Basic Version of the Job Alert Service**
-   1. For every new job added to the DB I want to get an **email notification** if it matches my search criteria
-   1. Search criteria will be:
-        - a list of **cities** that I define, when I set up the service
-        - List of **keywords** that I’m interested in, which will be searched for in the job’s title
-   1. Every time a new job get’s added which matches any of these criteria I want to receive a simple notification via email (plain-text is fine) containing the details of the job (title, city, company name, investors)
-1. **Advanced version: Daily Jobs Digest Service**
-   1.  In a real-world example we would have lots of jobs being added every day, it would be very spammy to send the user one email for each new job
-   1. Instead we want to send him a digest at the end of the day (scheduled for a specific time) that will contain an aggregated list of all matching jobs that have been added during the day  
+1. If user has property ```send_digest=False```, the user will be notified on a per job basis provided that the added job is present in the user's preferred location and has the relevant keywords in the tile.
 
-How you write that service is up to you, the only requirement from our side is that you do it in **NodeJS**.
+2. Users who have ```send_digest=True``` will receive an email comprising of all jobs that match their specified criteria posted in the 24 hour period from the server's defined polling value.
+* * *
+## Implementation
 
-Here are some suggestions where to get started:
-- You should take a look at **Events** in Hasura, for setting up a trigger to your service
-- Right now the DB does not have an exposed port to the outside in the Docker config
-- You can either query data from the DB using GraphQL queries or connect directly with Postgres credentials
-- Please design the extended DB schema that can store the job alert configs for users
+### Keywords
+- Keywords are defined in a specified keywords table.
+- Since one keyword can be applicable to multiple users, the ```Keywords``` table and the ```Users``` table have a **many-to-many** mapping via the ```user_to_keywords``` table. 
 
-Make sure to put a focus on **error handling** and **testing** for the service that you’re developing.
+### Events and Triggers
+- For **per job emailing**, the trigger is only initiated if the **title** and/or **city** is modified.
+- For digests, the ```date_added``` field for the ```Jobs``` table is only updated when the **title** and/or **city** is modified (which thereffore means that these jobs will be picked up in the polling process).
+- A ```title_lexeme``` which is a vectorized representation is automatically generated/updated whenever a job is updated.
 
-Let me know if you have any questions.
+## Schema Modifications
 
-## Overview
+The following tables and fields have been added. In case only a field is added, only the added/modified fields are displayed below:
 
-This project uses a `docker-compose` file to bundle the React app with a Postgres database and [Hasura GraphQL Engine](https://hasura.io/).
-Upon start the database will be initialized with tables `jobs`, `companies`, `investors` and `company_investors` and seeded with data.
+### Tables
+#### Users
 
+| Column  | Type  | 
+| - | - |
+| send_digest | boolean |
+
+#### Jobs
+| Column  | Type  | 
+| - | - |
+| title_lexeme | tsvector, nullable, default: to_tsvector('english'::regconfig, title)|
+| date_added | timestamp without time zone, nullable, default: now() |
+#### Keywords
+
+| Column  | Type  | 
+| - | - |
+| id | integer  primary key, unique, default: next ('keywords_id_seq'::regclass)|
+| keyword |  text |
+
+#### User_To_Keywords
+| Column  | Type  | 
+| - | - |
+| user_id | integer|
+| keyword_id | integer |
+| id | integer |
+
+### Views And Functions
+#### Get_Users_Matching_Job (Function)
+- See implementation in Hasura console
+
+&nbsp;
+#### Get_Users_Advanced (View)
+| Column  | Type  | 
+| - | - |
+| id | integer |
+| email | text |
+| city | text |
+| job_title | text |
+| job_id | integer |
+| date_added | timestamp without timezone |
+| investor_name | text |
+| company_name | text |
+
+* * *
 ## How to run the project
 
-There are two ways how to run the project:
+First, you must populate the following parameters in the docker compose file
 
-1.) Using only the docker-compose file: 
+```Docker
+- SMTP_PASSWORD=<sendgrid api key>
+- SMTP_HOST=smtp.sendgrid.net
+- SENDER_ADDRESS=<email address of your choosing>
+- EMAIL_SCHEDULE=* 18 * * * # Determines the polling rate for the digest mailing service.
+```
+
+* The app has been tested using [SendGrid](https://app.sendgrid.com) for delegating the mailing process and [MailSlurp](https://app.mailslurp.com/) for providing the sender email.
+   - For setting up SendGrid for this app, refer to this [document](https://docs.sendgrid.com/for-developers/sending-email/integrating-with-the-smtp-api).
+
+### Start App
 - `docker-compose up --build`
-- This will start the React app on port 8000 and Hasura on port 8080
-
-## Description of commands
-
-### `docker-compose up -d --build`
-
-Builds and starts the containers for the React app, Postgres database and Hasura Console alongside each other.
-It can take a few seconds after the containers have started until the Database is fully initialized and seeded.
-* Open [http://localhost:8000](http://localhost:8000) for the **React app**
-* Open [http://localhost:8080](http://localhost:8080) for the **Hasura Console**
-
-## About Hasura GraphQL Engine
-
-Hasura GraphQL Engine is a blazing-fast GraphQL server that gives you **instant, realtime GraphQL APIs over Postgres**, with [**webhook triggers**](event-triggers.md) on database events, and [**remote schemas**](remote-schemas.md) for business logic.
-
-Hasura helps you build GraphQL apps backed by Postgres or incrementally move to GraphQL for existing applications using Postgres.
-
-Read more at [hasura.io](https://hasura.io) and the [docs](https://hasura.io/docs).
-
-
+- This will start the:
+   1. React app on port 8000.
+   2. Hasura on port 8080.
+   3. The nodejs express api on port 5001.
