@@ -8,17 +8,16 @@ export class MailingService {
         private transporter = nodemailer.createTransport('smtp://'+process.env.SMTP_LOGIN+':'+process.env.SMTP_PASSWORD+'@' + process.env.SMTP_HOST),
     ) {}
 
-    sendEmail(mailOptions: Mail.Options):  Promise<any> {
-        mailOptions.from = process.env.SENDER_ADDRESS;
-        return new Promise((resolve,reject)=> {
-            this.transporter.sendMail(mailOptions, (error, info) => {
-                if(error){
-                    reject(new InternalServerError(error.message));
-                }
-                resolve(true);
-            });
+    sendEmail(mailOptions: Mail.Options[]):  Promise<any> {
+        const mailPromises = mailOptions.map((mail) => {
+            mail.from = process.env.SENDER_ADDRESS
+            return this.transporter.sendMail(mail)
         });
-
+        return Promise.all(mailPromises).catch(error => {
+            if(error){
+                throw new InternalServerError(error.message);
+            }
+        }).then(success => success);
     }
 }
 
