@@ -1,4 +1,4 @@
-import { GET_USERS_ADVANCED_QUERY } from '../queries/users';
+import { GET_USERS_ADVANCED_QUERY } from '../queries/users.queries';
 import { apolloClient } from '../apollo';
 import {
     GetJobCompanyAndInvestorQuery,

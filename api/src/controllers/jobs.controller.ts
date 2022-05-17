@@ -8,7 +8,7 @@ import {
   GetJobCompanyAndInvestorQueryVariables
 } from "../generated/graphql";
 import { apolloClient } from "../apollo";
-import { GET_JOBS_COMPANY_INVESTORS, GET_USERS_MATCHING_JOB } from "../queries/jobs";
+import { GET_JOBS_COMPANY_INVESTORS, GET_USERS_MATCHING_JOB } from "../queries/jobs.queries";
 import { JobsService } from "../services/jobs.service";
 import { SuccessMessageConstants } from "../utils/success.messages";
 import express from 'express';
