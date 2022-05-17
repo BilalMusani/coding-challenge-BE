@@ -61,7 +61,9 @@ export class JobsController {
       const jobCompanyInvestorResponse = await apolloClient.query<GetJobCompanyAndInvestorQuery, GetJobCompanyAndInvestorQueryVariables>(
         {
           query: GET_JOBS_COMPANY_INVESTORS,
-          variables: { id: job.id }
+          variables: { id: job.id },
+          // Never cache job company data
+          fetchPolicy: 'no-cache'
         });
 
       if (jobCompanyInvestorResponse.networkStatus === 8 || !jobCompanyInvestorResponse.data || jobCompanyInvestorResponse.error) {
