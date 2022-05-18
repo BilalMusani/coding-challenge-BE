@@ -6,6 +6,7 @@ import { isOperationalError, logError, logErrorMiddleware, returnError } from '.
 import cron from 'node-cron';
 import { JobsService } from "./services/jobs.service";
 import { JobUrls } from "./routes/job.urls";
+import { logger } from "./utils/loggers/default.logger";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(JobUrls.DEFAULT_JOB_ROUTE, jobsRouter);
 // schedule cron job to send digest
 
 cron.schedule(process.env.EMAIL_SCHEDULE || '* 18 * * *', () => {
+    logger.info("Sending digest!")
     jobService.sendDigest();
 });
 

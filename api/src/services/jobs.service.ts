@@ -15,6 +15,7 @@ import { logError } from '../utils/handlers/error.handler';
 import { getMessageFromApolloResult } from '../utils/errors/error.utils';
 import * as _ from 'lodash';
 import Mail from 'nodemailer/lib/mailer';
+import { logger } from '../utils/loggers/default.logger';
 
 export class JobsService {
     constructor(
@@ -97,6 +98,9 @@ export class JobsService {
                 const distinctJobs = _.uniqBy(users[email], (job) => job.id);
                 let plaintext = '';
                 distinctJobs.forEach(job => plaintext += this.createPlainText(job) + ' ');
+    
+                logger.info(`Sending emails to the following user: ${email} with digest: ${plaintext}`);
+
                 mailOptions.push({
                     to: email,
                     subject: MailingConstants.MESSAGE_DIGEST_SUBJECT, // Subject line
