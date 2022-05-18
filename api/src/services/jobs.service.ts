@@ -135,13 +135,13 @@ export class JobsService {
                         investor_id: 0
                     }) as Company_Investors)],
                 company_investors_aggregate: null,
-                id: job.job_id,
+                id: null,
                 jobs: [],
                 jobs_aggregate: null,
                 name: job.company_name,
             },
             company_id: 0,
-            id: job.id,
+            id: job.job_id,
             title: job.job_title,
             city: job.city
         };
