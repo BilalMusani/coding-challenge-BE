@@ -62,7 +62,7 @@ export class JobsService {
         const data = await apolloClient.query<GetUsersAdvancedQuery, GetUsersAdvancedQueryVariables>({
             query: GET_USERS_ADVANCED_QUERY,
             // This query is run via cron job so no need to cache
-            fetchPolicy: 'network-only'
+            fetchPolicy: 'no-cache'
         });
 
         if (data.error || data.errors || data.networkStatus === 8) {
